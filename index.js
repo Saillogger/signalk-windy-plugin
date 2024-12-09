@@ -1,5 +1,6 @@
 /*
- * Copyright 2019 Ilker Temir <ilker@ilkertemir.com>
+ * Copyright 2019-2024 Ilker Temir <ilker@ilkertemir.com>
+ * Copyright 2024 Saillogger LLC <info@saillogger.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,6 +117,13 @@ module.exports = function(app) {
     app.debug(`Starting submission process every ${options.submitInterval} minutes`);
 
     statusProcess = setInterval( function() {
+      function metersPerSecondToKnots(ms) {
+        if (ms == null) {
+          return null;
+        }
+        return Math.round(ms * 1.94384 * 10) / 10;
+      }
+
       var statusMessage = '';
       if (lastSuccessfulUpdate) {
         let since = timeSince(lastSuccessfulUpdate);
@@ -123,7 +131,9 @@ module.exports = function(app) {
       }
       if ((windSpeed.length > 0) && (windGust != null)) {
       	let currentWindSpeed = windSpeed[windSpeed.length-1];
-      	statusMessage += `Wind speed is ${currentWindSpeed}kts and gust is ${windGust}kts.`;
+        let currentWindSpeedKts = metersPerSecondToKnots(currentWindSpeed);
+        let windGustKts = metersPerSecondToKnots(windGust);
+        statusMessage += `Wind speed is ${currentWindSpeedKts}kts and gust is ${windGustKts}kts.`;
       } 
       app.setPluginStatus(statusMessage);
     }, 5 * 1000);
@@ -141,7 +151,7 @@ module.exports = function(app) {
           { station: options.stationId,
             name: name,
             shareOption: 'Open',
-            type: 'Signal K Windy Plugin',
+            type: 'Saillogger.com',
             provider: options.provider,
             url: options.url,
             lat: position.latitude,
@@ -167,7 +177,7 @@ module.exports = function(app) {
 
       app.debug(`Submitting data: ${JSON.stringify(data)}`);
       request(httpOptions, function (error, response, body) {
-        if (!error || response.statusCode == 200) {
+        if (!error && response.statusCode == 200) {
           app.debug('Weather report successfully submitted');
 	  lastSuccessfulUpdate = Date.now();
           position = null;
