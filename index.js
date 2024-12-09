@@ -124,10 +124,12 @@ module.exports = function(app) {
         return Math.round(ms * 1.94384 * 10) / 10;
       }
 
-      var statusMessage = '';
+      var statusMessage;
       if (lastSuccessfulUpdate) {
         let since = timeSince(lastSuccessfulUpdate);
-      	statusMessage += `Successful submission ${since} ago. `;
+        statusMessage = `Successful submission ${since} ago. `;
+      } else {
+        statusMessage = `No data has been submitted yet. `;
       }
       if ((windSpeed.length > 0) && (windGust != null)) {
       	let currentWindSpeed = windSpeed[windSpeed.length-1];

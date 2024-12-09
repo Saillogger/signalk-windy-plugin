@@ -11,9 +11,6 @@
   ],
   "author": "Saillogger LLC (info@saillogger.com)",
   "license": "Apache-2.0",
-  "dependencies": {
-    "request": "^2.88.0"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Saillogger/signalk-windy-plugin.git"
@@ -22,5 +19,7 @@
     "url": "https://github.com/Saillogger/signalk-windy-plugin/issues"
   },
   "homepage": "https://github.com/Saillogger/signalk-windy-plugin#readme",
-  "devDependencies": {}
+  "dependencies": {
+    "request": "^2.88.2"
+  }
 }
