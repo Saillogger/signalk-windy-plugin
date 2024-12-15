@@ -1,7 +1,7 @@
 {
   "name": "signalk-windy",
-  "version": "1.2.0",
-  "description": "SignalK plugin for submitting weather information to Windy.com",
+  "version": "1.2.1",
+  "description": "Signal K plugin for submitting weather information to Windy.com",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

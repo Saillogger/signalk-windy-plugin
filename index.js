@@ -153,7 +153,7 @@ module.exports = function(app) {
           { station: options.stationId,
             name: name,
             shareOption: 'Open',
-            type: 'Saillogger.com',
+            type: 'Boat (powered by Saillogger.com Signal K plugin)',
             provider: options.provider,
             url: options.url,
             lat: position.latitude,
