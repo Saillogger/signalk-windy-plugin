@@ -160,7 +160,29 @@ module.exports = function(app) {
 
     app.debug(`Starting submission process every ${options.submitInterval} minutes`);
 
-    // ... [rest of the start function remains the same]
+    statusProcess = setInterval( function() {
+      function metersPerSecondToKnots(ms) {
+        if (ms == null) {
+          return null;
+        }
+        return Math.round(ms * 1.94384 * 10) / 10;
+      }
+
+      var statusMessage;
+      if (lastSuccessfulUpdate) {
+        let since = timeSince(lastSuccessfulUpdate);
+        statusMessage = `Successful submission ${since} ago. `;
+      } else {
+        statusMessage = `No data has been submitted yet. `;
+      }
+      if ((windSpeed.length > 0) && (windGust != null)) {
+        let currentWindSpeed = windSpeed[windSpeed.length-1];
+        let currentWindSpeedKts = metersPerSecondToKnots(currentWindSpeed);
+        let windGustKts = metersPerSecondToKnots(windGust);
+        statusMessage += `Wind speed is ${currentWindSpeedKts}kts and gust is ${windGustKts}kts.`;
+      } 
+      app.setPluginStatus(statusMessage);
+    }, 5 * 1000);
 
     submitProcess = setInterval( function() {
       if ( (position == null) || (windSpeed.length == 0) || (windDirection == null) ||
@@ -220,6 +242,20 @@ module.exports = function(app) {
     }, options.submitInterval * 60 * 1000);
   }
 
+  plugin.stop =  function() {
+    clearInterval(statusProcess);
+    clearInterval(submitProcess);
+    app.setPluginStatus('Pluggin stopped');
+  };
+
+  function radiantToDegrees(rad) {
+    return rad * 57.2958;
+  }
+
+  function kelvinToCelsius(deg) {
+    return deg - 273.15;
+  }
+
   function processDelta(data) {
     if (!data.updates || !data.updates.length || !data.updates[0].values || !data.updates[0].values.length) {
       return;
@@ -272,7 +308,40 @@ module.exports = function(app) {
     }
   }
 
-  // ... [rest of the plugin code remains the same]
+  function timeSince(date) {
+    var seconds = Math.floor((new Date() - date) / 1000);
+    var interval = seconds / 31536000;
+    if (interval > 1) {
+      return Math.floor(interval) + " years";
+    }
+    interval = seconds / 2592000;
+    if (interval > 1) {
+      return Math.floor(interval) + " months";
+    }
+    interval = seconds / 86400;
+    if (interval > 1) {
+      return Math.floor(interval) + " days";
+    }
+    interval = seconds / 3600;
+    if (interval > 1) {
+      let time = Math.floor(interval);
+      if (time == 1) {
+        return (`${time} hour`);
+      } else {
+        return (msg = `${time} hours`);
+      }
+    }
+    interval = seconds / 60;
+    if (interval > 1) {
+      let time = Math.floor(interval);
+      if (time == 1) {
+        return (`${time} minute`);
+      } else {
+        return (msg = `${time} minutes`);
+      }
+    }
+    return Math.floor(seconds) + " seconds";
+  }
 
   return plugin;
 }
